@@ -1,16 +1,9 @@
 import sys
-# 把下面的路径替换成你自己的 CARLA PythonAPI 路径
-sys.path.append(r"C:\hutb1\WindowsNoEditor\PythonAPI\carla")
 
-# 之后再导入 agents 模块
+sys.path.append(r"./WindowsNoEditor/PythonAPI/carla")
+
+
 from agents.navigation.behavior_agent import BehaviorAgent
-#!/usr/bin/env python
-
-# Copyright (c) 2018 Intel Labs.
-# authors: German Ros (german.ros@intel.com)
-#
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
 
 """Example of automatic vehicle control from client side."""
 
