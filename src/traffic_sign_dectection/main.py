@@ -1,6 +1,18 @@
 import sys
+import os
 
-sys.path.append(r"./WindowsNoEditor/PythonAPI/carla")
+# 1. 获取当前脚本文件的绝对路径（和运行目录无关）
+script_directory = os.path.dirname(os.path.abspath(__file__))
+
+# 2. 拼接出CARLA PythonAPI的路径（自动适配Windows/Linux/macOS）
+carla_api_path = os.path.join(script_directory, "WindowsNoEditor", "PythonAPI", "carla")
+
+# 3. 检查路径是否存在，提前报错
+if not os.path.exists(carla_api_path):
+    raise FileNotFoundError(f"CARLA API路径不存在: {carla_api_path}\n请检查脚本和WindowsNoEditor文件夹是否在同一目录下")
+
+# 4. 添加到Python路径
+sys.path.append(carla_api_path)
 
 
 from agents.navigation.behavior_agent import BehaviorAgent
