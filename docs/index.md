@@ -1,5 +1,7 @@
 title: 主页
 
+<<<<<<< HEAD
+=======
 # [神经网络](https://github.com/OpenHUTB/nn)
 
 欢迎使用神经网络文档，该页面包含所有内容的索引。
@@ -52,12 +54,16 @@ title: 主页
 
 [机器人仿真(MuJoCo)](ant_robot/机器人仿真系统.md)
 
+[__机械臂仿真系统__](arm_sim.md) - 基于MuJoCo的机械臂仿真与功能优化
+
 ---
 ## 感知 <span id="perception"></span>
 
 [__车道线检测__](./lane_detection/README.md) - 基于 OpenCV 的 Carla 场景车道线检测（分步实现）
 
 [__carla_CAM__](./carla_CAM/README.md) - 使用类激活映射测试卷积神经网络
+
+[__自动驾驶车辆语义分割__](./auto_drive_seg/README.md) - 基于 U-Net + Focal Loss 的 CARLA 街景 8 类语义分割（含数据增强、速度基准、概率热力图、类别频率分析）
 
 [__V2X路侧智能感知__](./edge_intelligence_V2X/README.md) - 基于YOLOv8n的V2X路侧智能感知系统优化与实现
 
@@ -82,15 +88,20 @@ title: 主页
 
 [__setup_tool模块汇报文档__](./setup_tool/report.md) - setup_tool 模块背景、改进内容、运行方式与效果总结
 
+[__人形机器人自主行走__](./mujoco_hci_sim/README.md) - 基于PPO强化学习的Humanoid人形机器人自主行走仿真
+
 ## 规划 <span id="planning"></span>
 
 [__导航__](#navigation)
+
+[__Carla YOLO规划器__](carla_yolo_planner.md) - Carla环境结合YOLO的自动驾驶路径规划方案
 
 ## 控制  <span id="control"></span>
 
 [PID](#pid)
 title: 主页
 
+>>>>>>> ebacb9ab55185c039bacca159efd32b9ac410824
 
 
 # [神经网络](https://github.com/OpenHUTB/nn)
@@ -160,7 +171,7 @@ title: 主页
 - [__强化学习__](RL.md) - 强化学习基础
 
 - [__机器人仿真__](ant_robot/机器人仿真系统.md) - MuJoCo机器人仿真
-
+- [__机械臂仿真系统__](arm_sim.md) - 基于MuJoCo的机械臂仿真与功能优化 
 
 
 [__基于深度学习置信度加权的自动驾驶雨天多传感器融合感知优化__](rain_sensor_fusion\DEMO_REPORT.md)
@@ -206,7 +217,7 @@ title: 主页
 
 - [__机械臂自动抓取__](./robot_arm/README.md) - 基于Franka Panda的机械臂自动抓取仿真项目
 
-
+- [__双机器人分区巡逻与动态避障仿真__](./muscle_humaniod/index.md) - 基于 MuJoCo 的双人形机器人分区巡逻与动态避障仿真系统
 
 
 
@@ -218,12 +229,16 @@ title: 主页
 
 [__导航__](#navigation)
 
+- [__Carla YOLO规划器__](carla_yolo_planner.md) - Carla环境结合YOLO的自动驾驶路径规划方案
 
 
 ## 控制  <span id="control"></span>
 
+<<<<<<< HEAD
+
+=======
 [PID](#pid)
 [__CARLA IMU 数据采集平台__](./carla_imu/carla_imu.md) — CARLA惯性测量单元数据采集与可视化驾驶平台开发汇报文档
+>>>>>>> ebacb9ab55185c039bacca159efd32b9ac410824
 
 [PID](#pid)
-
