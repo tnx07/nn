@@ -8,6 +8,7 @@ import math
 import random
 import re
 import weakref
+import json  # 新增：JSON处理
 from pathlib import Path
 
 # ========== 全局常量 ==========
@@ -101,6 +102,83 @@ class DrivingLogger:
 
     def get_file_path(self):
         return str(self.log_file)
+
+# ========== 新增：轨迹记录器（JSON格式） ==========
+class TrajectoryLogger:
+    """记录车辆完整行驶轨迹为JSON文件，支持实时追加和最终格式化"""
+    def __init__(self):
+        self.log_dir = Path(LOG_SAVE_DIR)
+        self.log_dir.mkdir(exist_ok=True)
+        time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.traj_file = self.log_dir / f"trajectory_log_{time_str}.json"
+        self.trajectory_data = {
+            "metadata": {
+                "start_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3],
+                "total_frames": 0,
+                "collision_frames": [],
+                "target_reached_count": 0
+            },
+            "frames": []
+        }
+        # 初始化空JSON文件
+        self._save_to_file()
+
+    def record_frame(self, world, target_count):
+        """记录单帧轨迹数据"""
+        transform = world.player.get_transform()
+        vel = world.player.get_velocity()
+        speed = 3.6 * math.sqrt(vel.x**2 + vel.y**2 + vel.z**2)
+        current_frame = world.hud.frame
+
+        # 碰撞判断
+        is_collision = 0
+        collision_hist = world.collision_sensor.get_collision_history()
+        if current_frame in collision_hist:
+            is_collision = 1
+            if current_frame not in self.trajectory_data["metadata"]["collision_frames"]:
+                self.trajectory_data["metadata"]["collision_frames"].append(current_frame)
+
+        # 构造单帧数据
+        frame_data = {
+            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3],
+            "frame_id": current_frame,
+            "location": {
+                "x": round(transform.location.x, 2),
+                "y": round(transform.location.y, 2),
+                "z": round(transform.location.z, 2)
+            },
+            "rotation": {
+                "pitch": round(transform.rotation.pitch, 2),
+                "yaw": round(transform.rotation.yaw, 2),
+                "roll": round(transform.rotation.roll, 2)
+            },
+            "speed_kmh": round(speed, 1),
+            "is_collision": is_collision,
+            "target_reached_count": target_count
+        }
+
+        # 追加数据并更新元信息
+        self.trajectory_data["frames"].append(frame_data)
+        self.trajectory_data["metadata"]["total_frames"] = len(self.trajectory_data["frames"])
+        self.trajectory_data["metadata"]["target_reached_count"] = target_count
+
+        # 实时保存（轻量化写入）
+        self._save_to_file()
+
+    def _save_to_file(self):
+        """将轨迹数据写入JSON文件"""
+        with open(self.traj_file, "w", encoding="utf-8") as f:
+            json.dump(self.trajectory_data, f, ensure_ascii=False, indent=2)
+
+    def get_file_path(self):
+        """获取轨迹文件路径"""
+        return str(self.traj_file)
+
+    def finalize(self):
+        """程序结束时最终化数据（补充结束时间）"""
+        self.trajectory_data["metadata"]["end_time"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+        self._save_to_file()
+        logger.info(f"轨迹日志已最终化，共记录 {self.trajectory_data['metadata']['total_frames']} 帧")
 
 # ========== 工具函数 ==========
 def get_random_destination(current_loc, spawn_points):
@@ -656,6 +734,7 @@ def game_loop(args):
     pygame.font.init()
     world = None
     driving_logger = None
+    trajectory_logger = None  # 新增：轨迹日志器
     tot_target_reached = 0
 
     try:
@@ -670,9 +749,11 @@ def game_loop(args):
         world = World(client.get_world(), hud, args)
         controller = KeyboardControl(world)
 
-        # 初始化行驶日志
+        # 初始化行驶日志和轨迹日志
         driving_logger = DrivingLogger()
+        trajectory_logger = TrajectoryLogger()  # 新增：初始化轨迹日志
         logger.info(f"行驶日志已创建: {driving_logger.get_file_path()}")
+        logger.info(f"轨迹日志已创建: {trajectory_logger.get_file_path()}")
 
         # 初始化智能体（只保留你用的BehaviorAgent和BasicAgent）
         if args.agent == "Basic":
@@ -703,8 +784,9 @@ def game_loop(args):
             world.render(display)
             pygame.display.flip()
 
-            # 记录行驶日志
+            # 记录行驶日志和轨迹日志
             driving_logger.record_frame(world, tot_target_reached)
+            trajectory_logger.record_frame(world, tot_target_reached)  # 新增：记录轨迹
 
             if args.agent == "Basic":
                 control = agent.run_step()
@@ -737,8 +819,12 @@ def game_loop(args):
         if world is not None:
             world.destroy()
         pygame.quit()
+        # 保存日志
         if driving_logger:
             logger.info(f"行驶日志已保存至: {driving_logger.get_file_path()}")
+        if trajectory_logger:  # 新增：最终化并保存轨迹日志
+            trajectory_logger.finalize()
+            logger.info(f"轨迹日志已保存至: {trajectory_logger.get_file_path()}")
 
 # ========== 主函数 ==========
 def main():
